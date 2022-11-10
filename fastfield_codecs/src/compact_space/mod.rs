@@ -456,7 +456,7 @@ impl CompactSpaceDecompressor {
 mod tests {
 
     use super::*;
-    use crate::{open_u128, serialize_u128};
+    use crate::{open_u128, serialize::U128Header, serialize_u128};
 
     #[test]
     fn compact_space_test() {
@@ -501,7 +501,8 @@ mod tests {
         assert_eq!(amplitude, 2);
     }
 
-    fn test_all(data: OwnedBytes, expected: &[u128]) {
+    fn test_all(mut data: OwnedBytes, expected: &[u128]) {
+        let _header = U128Header::deserialize(&mut data);
         let decompressor = CompactSpaceDecompressor::open(data).unwrap();
         for (idx, expected_val) in expected.iter().cloned().enumerate() {
             let val = decompressor.get(idx as u32);
@@ -556,7 +557,8 @@ mod tests {
             4_000_211_222u128,
             333u128,
         ];
-        let data = test_aux_vals(vals);
+        let mut data = test_aux_vals(vals);
+        let _header = U128Header::deserialize(&mut data);
         let decomp = CompactSpaceDecompressor::open(data).unwrap();
         let complete_range = 0..vals.len() as u32;
         for (pos, val) in vals.iter().enumerate() {
@@ -681,7 +683,8 @@ mod tests {
             4_000_211_222u128,
             333u128,
         ];
-        let data = test_aux_vals(vals);
+        let mut data = test_aux_vals(vals);
+        let _header = U128Header::deserialize(&mut data);
         let decomp = CompactSpaceDecompressor::open(data).unwrap();
         let complete_range = 0..vals.len() as u32;
         assert_eq!(
